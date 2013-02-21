@@ -24,7 +24,7 @@ public class StompizeTest {
     @Test
     public void shouldWriteSendFrameToChannel() throws Exception {
         Channel channel = mock(Channel.class);
-        newInstance(DemoClient.class, channel, "").send("d", new Content(buf("123")));
+        newInstance(DemoClient.class, channel, "", "").send("d", new Content(buf("123")));
         verify(channel).write(buf("SEND\ndestination:d\ncontent-length:3\n\n123\u0000"));
     }
 
@@ -54,7 +54,7 @@ public class StompizeTest {
                      .handler(new ChannelInitializer<SocketChannel>() {
                          @Override
                          public void initChannel(SocketChannel ch) throws Exception {
-                             DemoClientImpl client = new DemoClientImpl(ch, null);
+                             DemoClientImpl client = new DemoClientImpl(ch, null, null);
                              ref.set(client);
                              ch.pipeline().addLast(new Handler(client));
 
