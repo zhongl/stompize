@@ -6,4 +6,8 @@ public abstract class DemoClient implements Demo {
     public void receipt(@Required("receipt-id") String receiptId) {
         System.out.println("[C] < RECEIPT: " + receiptId);
     }
+
+    public void send(String destination, Content content) {
+        send(destination, null, null, content);
+    }
 }
