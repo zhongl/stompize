@@ -14,6 +14,8 @@ public abstract class ForeachCommandOf {
         for (Method method : methods) {
             if (!Modifier.isAbstract(method.getModifiers())) continue;
 
+            boolean hasContent = false;
+
             applyCommand(method.getName(), method);
 
             Annotation[][] parameterAnnotations = method.getParameterAnnotations();
@@ -34,9 +36,12 @@ public abstract class ForeachCommandOf {
                 }
 
                 if (Content.class.isAssignableFrom(method.getParameterTypes()[i])) {
+                    hasContent = true;
                     applyContent(i + 1);
                 }
             }
+
+            if (!hasContent) applyContent(-1);
 
             applyEnd();
         }

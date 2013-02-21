@@ -4,6 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
@@ -54,15 +56,21 @@ public class StompizedClassWriter {
 
     private void staticFields() {
         new ForeachCommandOf(spec) {
-
-            @Override
-            protected void applyHeader(String name, int index) {
-                field(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, name.toUpperCase(), DESC_BYTE_BUF);
-            }
+            Set<String> applied = new HashSet<String>();
 
             @Override
             protected void applyCommand(String name, Method method) {
-                field(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, name.toUpperCase(), DESC_BYTE_BUF);
+                String u = name.toUpperCase();
+                if (applied.contains(u)) return;
+                field(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, u, DESC_BYTE_BUF);
+                applied.add(u);
+            }
+
+            @Override
+            protected void applyHeader(String name, int index) {
+                if (applied.contains(name)) return;
+                field(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, name, DESC_BYTE_BUF);
+                applied.add(name);
             }
         }.apply();
     }
@@ -72,16 +80,21 @@ public class StompizedClassWriter {
         mv.visitCode();
 
         new ForeachCommandOf(spec) {
-
-            @Override
-            protected void applyHeader(String name, int index) {
-                initField(name.toUpperCase(), name);
-            }
+            Set<String> applied = new HashSet<String>();
 
             @Override
             protected void applyCommand(String name, Method method) {
-                String v = name.toUpperCase();
-                initField(v, v);
+                String u = name.toUpperCase();
+                if (applied.contains(u)) return;
+                initField(u, u);
+                applied.add(u);
+            }
+
+            @Override
+            protected void applyHeader(String name, int index) {
+                if (applied.contains(name)) return;
+                initField(name, name);
+                applied.add(name);
             }
 
             private void initField(String name, String value) {
@@ -156,7 +169,7 @@ public class StompizedClassWriter {
             @Override
             protected void applyRequiredHeader(String name, int index) {
                 mv.visitVarInsn(ALOAD, componentsIndex);
-                mv.visitFieldInsn(GETSTATIC, subclassName, name.toUpperCase(), DESC_BYTE_BUF);
+                mv.visitFieldInsn(GETSTATIC, subclassName, name, DESC_BYTE_BUF);
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitMethodInsn(INVOKESTATIC, "com/github/zhongl/stompize/Stompize", "addRequiredHeaderTo", "(Ljava/util/List;Lio/netty/buffer/ByteBuf;Ljava/lang/String;)V");
             }
@@ -164,7 +177,7 @@ public class StompizedClassWriter {
             @Override
             protected void applyOptionalHeader(String name, int index) {
                 mv.visitVarInsn(ALOAD, componentsIndex);
-                mv.visitFieldInsn(GETSTATIC, subclassName, name.toUpperCase(), DESC_BYTE_BUF);
+                mv.visitFieldInsn(GETSTATIC, subclassName, name, DESC_BYTE_BUF);
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitMethodInsn(INVOKESTATIC, "com/github/zhongl/stompize/Stompize", "addOptionalHeaderTo", "(Ljava/util/List;Lio/netty/buffer/ByteBuf;Ljava/lang/String;)V");
             }
@@ -172,7 +185,8 @@ public class StompizedClassWriter {
             @Override
             protected void applyContent(int index) {
                 mv.visitVarInsn(ALOAD, componentsIndex);
-                mv.visitVarInsn(ALOAD, index);
+                if (index > 0) mv.visitVarInsn(ALOAD, index);
+                else mv.visitInsn(ACONST_NULL);
                 mv.visitMethodInsn(INVOKESTATIC, "com/github/zhongl/stompize/Stompize", "addContentTo", "(Ljava/util/List;Lcom/github/zhongl/stompize/Content;)V");
             }
 
@@ -197,7 +211,7 @@ public class StompizedClassWriter {
 
                 mv.visitInsn(RETURN);
 
-                mv.visitMaxs(componentsIndex + 2, componentsIndex + 1);
+                mv.visitMaxs(7, componentsIndex + 1);
                 mv.visitEnd();
 
             }

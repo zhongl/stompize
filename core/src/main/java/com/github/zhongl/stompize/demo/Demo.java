@@ -19,4 +19,18 @@ public interface Demo extends Specification {
             @Required("receipt-id") String receiptId
     );
 
+    void ack(
+            @Required("id") String id,
+            @Optional("receipt") String receipt,
+            @Optional("transaction") String transaction
+    );
+
+    void message(
+            @Required("destination") String destination,
+            @Required("message-id") String messageId,
+            @Required("subscription") String subscription,
+            @Optional("ack") String ack,
+            Content content
+    );
+
 }

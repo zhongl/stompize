@@ -13,9 +13,9 @@ public class Content {
     private static final ByteBuf CONTENT_LENGTH = buf("\ncontent-length:");
     private static final String  TEXT_PLAIN     = "text/plain";
 
-    private static final ByteBuf LF_BUF      = wrappedBuffer(new byte[]{LF});
-    private static final ByteBuf NULL_BUF    = wrappedBuffer(new byte[]{NULL});
-    private static final ByteBuf LF_NULL_BUF = wrappedBuffer(new byte[]{LF, NULL});
+    private static final ByteBuf LF_LF_BUF      = wrappedBuffer(new byte[]{LF, LF});
+    private static final ByteBuf NULL_BUF       = wrappedBuffer(new byte[]{NULL});
+    private static final ByteBuf LF_LF_NULL_BUF = wrappedBuffer(new byte[]{LF, LF, NULL});
 
     public static final Content NONE = new Content(EMPTY_BUFFER);
 
@@ -39,15 +39,15 @@ public class Content {
     public void appendTo(List<ByteBuf> components) {
         int length = value.readableBytes();
         if (length == 0) {
-            components.add(LF_NULL_BUF);
+            components.add(LF_LF_NULL_BUF);
         } else {
             if (type != null) {
                 components.add(CONTENT_TYPE);
-                components.add(buf(type + '\n'));
+                components.add(buf(type));
             }
             components.add(CONTENT_LENGTH);
-            components.add(wrappedBuffer((length + "\n").getBytes(UTF8)));
-            components.add(LF_BUF);
+            components.add(wrappedBuffer(String.valueOf(length).getBytes(UTF8)));
+            components.add(LF_LF_BUF);
             components.add(value());
             components.add(NULL_BUF);
         }
