@@ -1,7 +1,16 @@
-package com.github.zhongl.stompize;
+package com.github.zhongl.stompize.demo;
+
+import com.github.zhongl.stompize.Content;
+import com.github.zhongl.stompize.Required;
 
 /** @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a> */
 public abstract class DemoClient implements Demo {
+    private final Object obj;
+
+    protected DemoClient(Object obj) {
+        this.obj = obj;
+    }
+
     @Override
     public void receipt(@Required("receipt-id") String receiptId) {
         System.out.println("[C] < RECEIPT: " + receiptId);

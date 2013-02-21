@@ -1,5 +1,6 @@
-package com.github.zhongl.stompize;
+package com.github.zhongl.stompize.demo;
 
+import com.github.zhongl.stompize.Frame;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundByteHandlerAdapter;

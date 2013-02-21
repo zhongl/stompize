@@ -1,34 +1,40 @@
 package com.github.zhongl.stompize;
 
+import com.github.zhongl.stompize.demo.*;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelInitializer;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
-import java.net.URI;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 
 import static com.github.zhongl.stompize.Bytes.buf;
+import static com.github.zhongl.stompize.Stompize.newInstance;
+import static org.mockito.Mockito.*;
 
 /** @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a> */
 public class StompizeTest {
 
-    private InetSocketAddress address;
+    private InetSocketAddress address = new InetSocketAddress(9901);
 
     @Test
-    public void shouldInvokeProxy() throws Exception {
-        URI uri = new URI("stomp://app@localhost:9901");
-        System.out.println(uri.getPort());
-        System.out.println(uri.getHost());
-        System.out.println(uri.getScheme());
-        System.out.println(uri.getRawUserInfo());
-//        Stompize.client(uri, DemoClient.class).newInstance();
+    public void shouldWriteSendFrameToChannel() throws Exception {
+        Channel channel = mock(Channel.class);
+        newInstance(DemoClient.class, channel, "").send("d", new Content(buf("123")));
+        verify(channel).write(buf("SEND\ndestination:d\ncontent-length:3\n\n123\u0000"));
+    }
+
+    @Test
+    public void shouldInvokeReceipt() throws Exception {
+        Demo demo = mock(Demo.class);
+        ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
+        doReturn(buf("RECEIPT\nreceipt-id:1\n\n\u0000")).when(ctx).inboundByteBuffer();
+        Stompize.inboundHandler(demo).inboundBufferUpdated(ctx);
+        verify(demo).receipt("1");
     }
 
     @Test
@@ -38,17 +44,17 @@ public class StompizeTest {
         Thread.sleep(1000);
     }
 
-    private StompizedDemoClient client() {
+    private DemoClientImpl client() {
         final Bootstrap bootstrap = new Bootstrap();
         try {
-            final AtomicReference<StompizedDemoClient> ref = new AtomicReference<StompizedDemoClient>();
+            final AtomicReference<DemoClientImpl> ref = new AtomicReference<DemoClientImpl>();
             bootstrap.group(new NioEventLoopGroup(1))
                      .channel(NioSocketChannel.class)
                      .remoteAddress(address)
                      .handler(new ChannelInitializer<SocketChannel>() {
                          @Override
                          public void initChannel(SocketChannel ch) throws Exception {
-                             StompizedDemoClient client = new StompizedDemoClient(ch);
+                             DemoClientImpl client = new DemoClientImpl(ch, null);
                              ref.set(client);
                              ch.pipeline().addLast(new Handler(client));
 
@@ -72,14 +78,13 @@ public class StompizeTest {
     private void server() {
         NioEventLoopGroup group = new NioEventLoopGroup(1);
         final ServerBootstrap bootstrap = new ServerBootstrap();
-        address = new InetSocketAddress(9901);
         bootstrap.group(group, group)
                  .channel(NioServerSocketChannel.class)
                  .localAddress(address)
                  .childHandler(new ChannelInitializer<SocketChannel>() {
                      @Override
                      public void initChannel(SocketChannel ch) throws Exception {
-                         ch.pipeline().addLast(new Handler(new StompizedDemoServer(ch)));
+                         ch.pipeline().addLast(new Handler(new DemoServerImpl(ch)));
                          ch.closeFuture().addListener(new ChannelFutureListener() {
                              @Override
                              public void operationComplete(ChannelFuture future) throws Exception {

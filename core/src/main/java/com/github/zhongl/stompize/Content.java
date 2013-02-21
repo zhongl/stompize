@@ -11,7 +11,7 @@ import static io.netty.buffer.Unpooled.wrappedBuffer;
 public class Content {
     private static final ByteBuf CONTENT_TYPE   = buf("\ncontent-type:");
     private static final ByteBuf CONTENT_LENGTH = buf("\ncontent-length:");
-    private static final ByteBuf TEXT_PLAIN     = buf("text/plain\n");
+    private static final String  TEXT_PLAIN     = "text/plain";
 
     private static final ByteBuf LF_BUF      = wrappedBuffer(new byte[]{LF});
     private static final ByteBuf NULL_BUF    = wrappedBuffer(new byte[]{NULL});
@@ -32,7 +32,7 @@ public class Content {
         this.value = value;
     }
 
-    public String type() {return type;}
+    public String type() {return type == null ? TEXT_PLAIN : type; }
 
     public ByteBuf value() {return value.duplicate();}
 
@@ -41,10 +41,12 @@ public class Content {
         if (length == 0) {
             components.add(LF_NULL_BUF);
         } else {
-            components.add(CONTENT_TYPE);
-            components.add(type == null ? TEXT_PLAIN : buf(type + '\n'));
+            if (type != null) {
+                components.add(CONTENT_TYPE);
+                components.add(buf(type + '\n'));
+            }
             components.add(CONTENT_LENGTH);
-            components.add(wrappedBuffer(Integer.toString(length).getBytes(UTF8)));
+            components.add(wrappedBuffer((length + "\n").getBytes(UTF8)));
             components.add(LF_BUF);
             components.add(value());
             components.add(NULL_BUF);

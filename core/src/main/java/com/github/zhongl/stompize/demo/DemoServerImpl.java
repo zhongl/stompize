@@ -1,5 +1,7 @@
-package com.github.zhongl.stompize;
+package com.github.zhongl.stompize.demo;
 
+import com.github.zhongl.stompize.Content;
+import com.github.zhongl.stompize.Required;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.DefaultCompositeByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
@@ -11,14 +13,14 @@ import static com.github.zhongl.stompize.Bytes.buf;
 
 
 /** @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a> */
-public class StompizedDemoServer extends DemoServer {
+public class DemoServerImpl extends DemoServer {
 
     private static final ByteBuf RECEIPTE    = buf("RECEIPT");
     private static final ByteBuf RECEIPTE_ID = buf("\nreceipt-id:");
 
     private final SocketChannel channel;
 
-    public StompizedDemoServer(SocketChannel channel) {
+    public DemoServerImpl(SocketChannel channel) {
         super();
         this.channel = channel;
     }
