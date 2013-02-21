@@ -3,6 +3,7 @@ package com.github.zhongl.stompize;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.DefaultCompositeByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
+import io.netty.channel.Channel;
 import io.netty.channel.socket.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ public class StompizedDemoClient extends DemoClient {
     private static final ByteBuf TRANSACTION = buf("\ntransaction:");
     private static final ByteBuf RECEIPT     = buf("\nreceipt:");
 
-    private final SocketChannel channel;
+    private final Channel channel;
 
     public StompizedDemoClient(SocketChannel channel) {
         super();
