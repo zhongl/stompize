@@ -14,7 +14,9 @@ public final class Bytes {
 
     public static final Charset UTF8 = Charset.forName("UTF-8");
 
-    public static ByteBuf buf(String destination) {return Unpooled.wrappedBuffer(destination.getBytes(UTF8));}
+    public static ByteBuf buf(String s) {return Unpooled.wrappedBuffer(bytes(s));}
+
+    public static byte[] bytes(String s) {return s.getBytes(UTF8);}
 
     private Bytes() {}
 }
