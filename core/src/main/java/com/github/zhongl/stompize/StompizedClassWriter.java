@@ -1,5 +1,6 @@
 package com.github.zhongl.stompize;
 
+import com.github.zhongl.stompize.demo.DemoClientImpl;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import java.lang.reflect.Constructor;
@@ -15,11 +16,11 @@ import static org.objectweb.asm.Opcodes.*;
 /**
  * Generate concreted bytecode of {@link Specification}.
  * <p/>
- * {@link com.github.zhongl.stompize.demo.DemoClientImpl} would help you to understand the source below.
+ * {@link DemoClientImpl} would help you to understand the source below.
  *
  * @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a>
  */
-public class StompizedClassWriter {
+class StompizedClassWriter {
     private static final String DESC_BYTE_BUF = Type.getDescriptor(ByteBuf.class);
     private static final String DESC_CHANNEL  = Type.getDescriptor(Channel.class);
     private static final String CHANNEL       = "channel";
