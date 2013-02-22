@@ -21,9 +21,6 @@ import static org.objectweb.asm.Opcodes.*;
  * @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a>
  */
 class StompizedClassWriter {
-    private static final String DESC_BYTE_BUF = Type.getDescriptor(ByteBuf.class);
-    private static final String DESC_CHANNEL  = Type.getDescriptor(Channel.class);
-    private static final String CHANNEL       = "channel";
 
     private final Class<? extends Specification> spec;
     private final String                         className;
@@ -42,7 +39,7 @@ class StompizedClassWriter {
 
         staticFields();
 
-        field(ACC_PRIVATE + ACC_FINAL, CHANNEL, DESC_CHANNEL);
+        field(ACC_PRIVATE + ACC_FINAL, "channel", Type.getDescriptor(Channel.class));
 
         clinit();
 
@@ -63,14 +60,14 @@ class StompizedClassWriter {
             protected void applyCommand(String name, Method method) {
                 String u = name.toUpperCase();
                 if (applied.contains(u)) return;
-                field(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, u, DESC_BYTE_BUF);
+                field(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, u, Type.getDescriptor(ByteBuf.class));
                 applied.add(u);
             }
 
             @Override
             protected void applyHeader(String name, int index) {
                 if (applied.contains(name)) return;
-                field(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, name, DESC_BYTE_BUF);
+                field(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, name, Type.getDescriptor(ByteBuf.class));
                 applied.add(name);
             }
         }.apply();
@@ -101,7 +98,7 @@ class StompizedClassWriter {
             private void initField(String name, String value) {
                 mv.visitLdcInsn(value);
                 mv.visitMethodInsn(INVOKESTATIC, "com/github/zhongl/stompize/Bytes", "buf", "(Ljava/lang/String;)Lio/netty/buffer/ByteBuf;");
-                mv.visitFieldInsn(PUTSTATIC, subclassName, name, DESC_BYTE_BUF);
+                mv.visitFieldInsn(PUTSTATIC, subclassName, name, Type.getDescriptor(ByteBuf.class));
             }
 
         }.apply();
@@ -120,7 +117,7 @@ class StompizedClassWriter {
         Class<?>[] parameterTypes = constructors[0].getParameterTypes();
 
         StringBuilder descriptor = new StringBuilder("(");
-        descriptor.append(DESC_CHANNEL);
+        descriptor.append(Type.getDescriptor(Channel.class));
         for (Class<?> parameterType : parameterTypes) descriptor.append(Type.getDescriptor(parameterType));
         descriptor.append(")V");
 
@@ -138,7 +135,7 @@ class StompizedClassWriter {
 
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
-        mv.visitFieldInsn(PUTFIELD, subclassName, CHANNEL, DESC_CHANNEL);
+        mv.visitFieldInsn(PUTFIELD, subclassName, "channel", Type.getDescriptor(Channel.class));
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(parameterTypes.length + 1, parameterTypes.length + 2);
@@ -162,7 +159,7 @@ class StompizedClassWriter {
                 mv.visitVarInsn(ASTORE, componentsIndex);
 
                 mv.visitVarInsn(ALOAD, componentsIndex);
-                mv.visitFieldInsn(GETSTATIC, subclassName, name.toUpperCase(), DESC_BYTE_BUF);
+                mv.visitFieldInsn(GETSTATIC, subclassName, name.toUpperCase(), Type.getDescriptor(ByteBuf.class));
                 mv.visitMethodInsn(INVOKEINTERFACE, "java/util/List", "add", "(Ljava/lang/Object;)Z");
                 mv.visitInsn(POP);
             }
@@ -170,7 +167,7 @@ class StompizedClassWriter {
             @Override
             protected void applyRequiredHeader(String name, int index) {
                 mv.visitVarInsn(ALOAD, componentsIndex);
-                mv.visitFieldInsn(GETSTATIC, subclassName, name, DESC_BYTE_BUF);
+                mv.visitFieldInsn(GETSTATIC, subclassName, name, Type.getDescriptor(ByteBuf.class));
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitMethodInsn(INVOKESTATIC, "com/github/zhongl/stompize/Stompize", "addRequiredHeaderTo", "(Ljava/util/List;Lio/netty/buffer/ByteBuf;Ljava/lang/String;)V");
             }
@@ -178,7 +175,7 @@ class StompizedClassWriter {
             @Override
             protected void applyOptionalHeader(String name, int index) {
                 mv.visitVarInsn(ALOAD, componentsIndex);
-                mv.visitFieldInsn(GETSTATIC, subclassName, name, DESC_BYTE_BUF);
+                mv.visitFieldInsn(GETSTATIC, subclassName, name, Type.getDescriptor(ByteBuf.class));
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitMethodInsn(INVOKESTATIC, "com/github/zhongl/stompize/Stompize", "addOptionalHeaderTo", "(Ljava/util/List;Lio/netty/buffer/ByteBuf;Ljava/lang/String;)V");
             }
@@ -194,7 +191,7 @@ class StompizedClassWriter {
             @Override
             protected void applyEnd() {
                 mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, subclassName, CHANNEL, DESC_CHANNEL);
+                mv.visitFieldInsn(GETFIELD, subclassName, "channel", Type.getDescriptor(Channel.class));
                 mv.visitTypeInsn(NEW, "io/netty/buffer/DefaultCompositeByteBuf");
                 mv.visitInsn(DUP);
                 mv.visitFieldInsn(GETSTATIC, "io/netty/buffer/UnpooledByteBufAllocator", "HEAP_BY_DEFAULT", "Lio/netty/buffer/UnpooledByteBufAllocator;");
@@ -206,7 +203,7 @@ class StompizedClassWriter {
                 mv.visitInsn(POP);
 
                 mv.visitVarInsn(ALOAD, 0);
-                mv.visitFieldInsn(GETFIELD, subclassName, CHANNEL, DESC_CHANNEL);
+                mv.visitFieldInsn(GETFIELD, subclassName, "channel", Type.getDescriptor(Channel.class));
                 mv.visitMethodInsn(INVOKEINTERFACE, "io/netty/channel/Channel", "flush", "()Lio/netty/channel/ChannelFuture;");
                 mv.visitInsn(POP);
 
