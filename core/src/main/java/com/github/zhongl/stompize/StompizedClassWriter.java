@@ -73,6 +73,10 @@ class StompizedClassWriter {
         }.apply();
     }
 
+    private void field(int access, String name, String type) {
+        cw.visitField(access, name, type, null, null).visitEnd();
+    }
+
     private void clinit() {
         final MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
         mv.visitCode();
@@ -214,9 +218,5 @@ class StompizedClassWriter {
 
             }
         }.apply();
-    }
-
-    private void field(int access, String name, String type) {
-        cw.visitField(access, name, type, null, null).visitEnd();
     }
 }
