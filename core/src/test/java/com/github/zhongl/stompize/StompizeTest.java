@@ -20,7 +20,7 @@ public class StompizeTest {
         DemoClient client = newInstance(DemoClient.class, channel, "", "");
 
         client.send("d", new Content(buf("123")));
-        verify(channel).write(buf("SEND\ndestination:d\ncontent-length:3\n\n123\u0000"));
+        verify(channel).write(buf("SEND\ndestination:d\ncontent-type:text/plain\ncontent-length:3\n\n123\u0000"));
 
         client.send("d", null, "r1", new Content("text/json", buf("[]")));
         verify(channel).write(buf("SEND\ndestination:d\nreceipt:r1\ncontent-type:text/json\ncontent-length:2\n\n[]\u0000"));

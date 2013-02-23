@@ -23,16 +23,15 @@ public class Content {
     private final ByteBuf value;
 
     public Content(ByteBuf value) {
-        this.value = value;
-        type = null;
+        this(null, value);
     }
 
     public Content(String type, ByteBuf value) {
-        this.type = type;
-        this.value = value;
+        this.type = type == null ? TEXT_PLAIN : type;
+        this.value = value == null ? EMPTY_BUFFER : value;
     }
 
-    public String type() {return type == null ? TEXT_PLAIN : type; }
+    public String type() {return type; }
 
     public ByteBuf value() {return value.duplicate();}
 
@@ -41,10 +40,8 @@ public class Content {
         if (length == 0) {
             components.add(LF_LF_NULL_BUF);
         } else {
-            if (type != null) {
-                components.add(CONTENT_TYPE);
-                components.add(buf(type));
-            }
+            components.add(CONTENT_TYPE);
+            components.add(buf(type));
             components.add(CONTENT_LENGTH);
             components.add(wrappedBuffer(String.valueOf(length).getBytes(UTF8)));
             components.add(LF_LF_BUF);
@@ -52,4 +49,27 @@ public class Content {
             components.add(NULL_BUF);
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Content content = (Content) o;
+
+        if (!type.equals(content.type)) return false;
+        if (!value.equals(content.value)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = type.hashCode();
+        result = 31 * result + value.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() { return "Content{type='" + type + '\'' + ", value=" + value + '}'; }
 }
