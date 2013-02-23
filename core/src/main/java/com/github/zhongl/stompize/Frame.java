@@ -6,7 +6,7 @@ import java.util.Map;
 import static com.github.zhongl.stompize.Bytes.UTF8;
 
 /** @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a> */
-final class Frame {
+public final class Frame {
 
     public Frame(ByteBuf command, Map<ByteBuf, ByteBuf> headers, Content content) {
         this.command = command;
