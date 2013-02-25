@@ -1,7 +1,7 @@
 package com.github.zhongl.stompize;
 
 /** @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a> */
-public interface V1_2 extends Specification {
+public interface StompV1_2 extends Specification {
 
     void connect(
             @Required("accept-version") String acceptVersion,

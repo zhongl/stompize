@@ -108,6 +108,7 @@ class InboundClassWriter extends StompizedClassWriter {
 
                 mv.visitFrame(F_SAME, 0, null, 0, null);
             }
+
         }.apply();
 
         mv.visitInsn(RETURN);
@@ -115,6 +116,22 @@ class InboundClassWriter extends StompizedClassWriter {
         autoVisitMaxs(mv);
 
         mv.visitEnd();
+    }
+
+    @Override
+    protected boolean exclude(Method method) {
+        // TODO refactor this ugly code
+        if (method.getDeclaringClass() != spec) return true;
+        Class<?> specDef = null;
+        for (Class<?> i : spec.getInterfaces()) {
+            if (Specification.class.isAssignableFrom(i)) specDef = i;
+        }
+        try {
+            specDef.getDeclaredMethod(method.getName(), method.getParameterTypes());
+            return false;
+        } catch (NoSuchMethodException e) {
+            return true;
+        }
     }
 
     @Override

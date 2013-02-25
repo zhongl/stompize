@@ -32,9 +32,9 @@ public class StompizeTest {
         Demo demo = mock(DemoClient.class);
         ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
 
-        doReturn(buf("ACK\nid:1\n\n\u0000")).when(ctx).inboundByteBuffer();
+        doReturn(buf("RECEIPT\nreceipt-id:1\n\n\u0000")).when(ctx).inboundByteBuffer();
         Stompize.inboundHandler(demo, 4096).inboundBufferUpdated(ctx);
-        verify(demo).ack("1", null, null);
+        verify(demo).receipt("1");
     }
 
     final Channel channel = mock(Channel.class);

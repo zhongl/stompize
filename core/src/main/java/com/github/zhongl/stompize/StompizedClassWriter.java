@@ -1,6 +1,7 @@
 package com.github.zhongl.stompize;
 
 import io.netty.buffer.ByteBuf;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +17,6 @@ import static org.objectweb.asm.Opcodes.*;
  * @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a>
  */
 abstract class StompizedClassWriter {
-
 
     protected StompizedClassWriter(Class<? extends Specification> spec, String suffix) {
         this.spec = spec;
@@ -111,6 +111,8 @@ abstract class StompizedClassWriter {
 
     protected abstract void methods();
 
+    protected abstract boolean exclude(Method method);
+
     protected void field(int access, String name, String type) {
         cw.visitField(access, name, type, null, null).visitEnd();
     }
@@ -119,4 +121,60 @@ abstract class StompizedClassWriter {
     protected final String                         className;
     protected final String                         subClassName;
     protected final ClassWriter                    cw;
+
+    protected abstract class ForeachFrameOf {
+        protected ForeachFrameOf(Class<? extends Specification> spec) { methods = spec.getMethods(); }
+
+        public final void apply() {
+            for (Method method : methods) {
+                if (exclude(method)) continue;
+
+                boolean hasContent = false;
+
+                applyCommand(method.getName(), method);
+
+                Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+
+                for (int i = 0; i < parameterAnnotations.length; i++) {
+                    Annotation[] parameterAnnotation = parameterAnnotations[i];
+
+                    for (Annotation annotation : parameterAnnotation) {
+                        if (annotation instanceof Required) {
+                            applyRequiredHeader(((Required) annotation).value(), i + 1);
+                            continue;
+                        }
+                        if (annotation instanceof Optional) {
+                            applyOptionalHeader(((Optional) annotation).value(), i + 1);
+                            continue;
+                        }
+                        throw new IllegalArgumentException("Parameter without Required nor Optional annotation should be Content in " + method);
+                    }
+
+                    if (Content.class.isAssignableFrom(method.getParameterTypes()[i])) {
+                        hasContent = true;
+                        applyContent(i + 1);
+                    }
+                }
+
+                if (!hasContent) applyContent(-1);
+
+                applyEnd();
+            }
+
+        }
+
+        protected void applyCommand(String name, Method method) {}
+
+        protected void applyRequiredHeader(String name, int index) { applyHeader(name, index); }
+
+        protected void applyOptionalHeader(String name, int index) { applyHeader(name, index); }
+
+        protected void applyHeader(String name, int index) {}
+
+        protected void applyContent(int index) {}
+
+        protected void applyEnd() {}
+
+        private final Method[] methods;
+    }
 }

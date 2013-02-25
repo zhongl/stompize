@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
@@ -133,7 +134,13 @@ class OutboundClassWriter extends StompizedClassWriter {
                 mv.visitEnd();
 
             }
+
         }.apply();
+    }
+
+    @Override
+    protected boolean exclude(Method method) {
+        return !Modifier.isAbstract(method.getModifiers());
     }
 
     @Override
