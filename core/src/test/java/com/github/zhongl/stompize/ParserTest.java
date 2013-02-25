@@ -111,4 +111,24 @@ public class ParserTest {
         }
     }
 
+    @Test
+    public void shouldParseFramesInBigBuf() throws Exception {
+        ByteBuf in = buf("C1\nh1:v1\n\n\u0000C2\nh2:v2\n\n\u0000C3\nh3:v3\n\nc3\u0000C4\nh4:v4\ncontent-length:7\n\ncontent\u0000");
+        Parser parser = new Parser(4096);
+
+        Frame f1 = parser.parse(in);
+        assertThat(f1.command(), is(buf("C1")));
+        assertThat(f1.header(buf("h1")), is("v1"));
+
+        Frame f2 = parser.parse(in);
+        assertThat(f2.command(), is(buf("C2")));
+        assertThat(f2.header(buf("h2")), is("v2"));
+
+        Frame f3 = parser.parse(in);
+        assertThat(f3.content(), is(new Content(buf("c3"))));
+
+        Frame f4 = parser.parse(in);
+        assertThat(f4.content(), is(new Content(buf("content"))));
+
+    }
 }

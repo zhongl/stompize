@@ -124,7 +124,7 @@ class Parser {
             State<?> ref = new ReadUtil(NULL, offset) {
                 @Override
                 protected State<?> next(ByteBuf in, int length) {
-                    ByteBuf content = in.slice(super.offset, length);
+                    ByteBuf content = in.slice(in.readerIndex() + super.offset, length);
                     in.skipBytes(super.offset + length + 1); // skip NULL
                     return new State<Object>(content) {};
                 }
@@ -133,8 +133,9 @@ class Parser {
         }
 
         private ByteBuf readFixedContent(int length, ByteBuf in) {
-            ByteBuf content = in.slice(offset, length);
-            if (in.getByte(offset + length) != NULL)
+            int start = in.readerIndex() + offset;
+            ByteBuf content = in.slice(start, length);
+            if (in.getByte(start + length) != NULL)
                 throw new ParseException("Non-NULL end of frame.", in.readSlice(offset + length + 1));
 
             in.skipBytes(offset + length + 1);
@@ -177,10 +178,11 @@ class Parser {
 
         @Override
         protected State<?> next(ByteBuf in, int length) {
+            int start = in.readerIndex() + offset;
             int readerIndex = offset + length + 1;
             if (length == 0) return state(Unpooled.EMPTY_BUFFER, readerIndex);
-            if (in.getByte(offset + length - 1) == CR) length -= 1;
-            return state(in.slice(offset, length), readerIndex);
+            if (in.getByte(start + length - 1) == CR) length -= 1;
+            return state(in.slice(start, length), readerIndex);
         }
 
         protected abstract State<?> state(ByteBuf buf, int offset);
