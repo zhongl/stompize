@@ -1,19 +1,13 @@
 package com.github.zhongl.stompize;
 
-import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundByteHandlerAdapter;
 
 /** @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a> */
-public class ErrorHandler extends ChannelInboundByteHandlerAdapter {
+public class ErrorHandler extends ChannelHandlerAdapter {
 
     public ErrorHandler(StompV1_2 handle) {
         this.handle = handle;
-    }
-
-    @Override
-    protected void inboundBufferUpdated(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
-        ctx.fireInboundBufferUpdated();
     }
 
     @Override

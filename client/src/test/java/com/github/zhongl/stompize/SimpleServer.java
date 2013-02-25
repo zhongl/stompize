@@ -19,7 +19,6 @@ import static com.github.zhongl.stompize.Bytes.buf;
 public abstract class SimpleServer implements StompV1_2 {
     @Override
     public void connect(@Required("accept-version") String acceptVersion, @Required("host") String host, @Optional("login") String login, @Optional("passcode") String passcode, @Optional("heart-beat") String heartBeat) {
-        System.out.println("Server receive connect.");
         connected(acceptVersion, host + System.currentTimeMillis(), null, null);
     }
 
@@ -30,14 +29,12 @@ public abstract class SimpleServer implements StompV1_2 {
 
     @Override
     public void send(@Required("destination") String destination, @Optional("transaction") String transaction, @Optional("receipt") String receipt, Content content) {
-        System.out.println("Server receive send.");
         topics.publish(destination, content);
         if (receipt != null) receipt(receipt);
     }
 
     @Override
     public void subscribe(@Required("destination") String destination, @Required("id") String id, @Optional("receipt") String receipt, @Optional("ack") String ack) {
-        System.out.println("Server receive subscribe.");
         topics.subscribe(destination, id, this);
         if (receipt != null) receipt(receipt);
     }
@@ -50,7 +47,6 @@ public abstract class SimpleServer implements StompV1_2 {
 
     @Override
     public void ack(@Required("id") String id, @Optional("receipt") String receipt, @Optional("transaction") String transaction) {
-
         if (receipt != null) receipt(receipt);
     }
 
@@ -91,7 +87,7 @@ public abstract class SimpleServer implements StompV1_2 {
                      @Override
                      protected void initChannel(Channel ch) throws Exception {
                          final SimpleServer handle = Stompize.newInstance(SimpleServer.class, ch);
-                         ch.pipeline().addLast(/*new ErrorHandler(handle),*/ Stompize.inboundHandler(handle, 4096));
+                         ch.pipeline().addLast(new ErrorHandler(handle), Stompize.inboundHandler(handle, 4096));
                      }
                  });
         bootstrap.bind().sync();

@@ -17,7 +17,7 @@ public class Initializer<T extends StompV1_2> extends ChannelInitializer<Channel
     @Override
     protected void initChannel(Channel ch) throws Exception {
         handle = Stompize.newInstance(spec, ch, arguments);
-        ch.pipeline().addLast(/*new ErrorHandler(handle),*/ Stompize.inboundHandler(handle, maxFrameLength));
+        ch.pipeline().addLast(new ErrorHandler(handle), Stompize.inboundHandler(handle, maxFrameLength));
         latch.countDown();
     }
 
