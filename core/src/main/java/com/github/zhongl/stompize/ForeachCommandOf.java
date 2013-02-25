@@ -25,11 +25,11 @@ public abstract class ForeachCommandOf {
 
                 for (Annotation annotation : parameterAnnotation) {
                     if (annotation instanceof Required) {
-                        applyRequiredHeader(wrap(((Required) annotation).value()), i + 1);
+                        applyRequiredHeader(((Required) annotation).value(), i + 1);
                         continue;
                     }
                     if (annotation instanceof Optional) {
-                        applyOptionalHeader(wrap(((Optional) annotation).value()), i + 1);
+                        applyOptionalHeader(((Optional) annotation).value(), i + 1);
                         continue;
                     }
                     throw new IllegalArgumentException("Parameter without Required nor Optional annotation should be Content in " + method);
@@ -63,8 +63,6 @@ public abstract class ForeachCommandOf {
     protected void applyContent(int index) {}
 
     protected void applyEnd() {}
-
-    private static String wrap(String name) {return '\n' + name + ':';}
 
     private final Method[] methods;
 }

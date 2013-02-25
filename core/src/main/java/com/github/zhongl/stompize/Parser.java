@@ -125,7 +125,7 @@ class Parser {
                 @Override
                 protected State<?> next(ByteBuf in, int length) {
                     ByteBuf content = in.slice(super.offset, length);
-                    in.skipBytes(1); // skip NULL
+                    in.skipBytes(super.offset + length + 1); // skip NULL
                     return new State<Object>(content) {};
                 }
             }.read(in);

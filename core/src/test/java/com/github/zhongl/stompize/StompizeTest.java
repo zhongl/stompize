@@ -4,7 +4,6 @@ import com.github.zhongl.stompize.demo.Demo;
 import com.github.zhongl.stompize.demo.DemoClient;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.github.zhongl.stompize.Bytes.buf;
@@ -16,7 +15,6 @@ public class StompizeTest {
 
     @Test
     public void shouldWriteSendFrameToChannel() throws Exception {
-        Channel channel = mock(Channel.class);
         DemoClient client = newInstance(DemoClient.class, channel, "", "");
 
         client.send("d", new Content(buf("123")));
@@ -29,13 +27,15 @@ public class StompizeTest {
         verify(channel).write(buf("ACK\nid:1\n\n\u0000"));
     }
 
-    @Ignore
+    @Test
     public void shouldInvokeReceipt() throws Exception {
-        Demo demo = mock(Demo.class);
+        Demo demo = mock(DemoClient.class);
         ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
-        doReturn(buf("RECEIPT\nreceipt-id:1\n\n\u0000")).when(ctx).inboundByteBuffer();
-        Stompize.inboundHandler(demo).inboundBufferUpdated(ctx);
-        verify(demo).receipt("1");
+
+        doReturn(buf("ACK\nid:1\n\n\u0000")).when(ctx).inboundByteBuffer();
+        Stompize.inboundHandler(demo, 4096).inboundBufferUpdated(ctx);
+        verify(demo).ack("1", null, null);
     }
 
+    final Channel channel = mock(Channel.class);
 }

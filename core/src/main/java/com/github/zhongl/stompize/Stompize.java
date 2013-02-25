@@ -3,6 +3,7 @@ package com.github.zhongl.stompize;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInboundByteHandler;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -15,21 +16,27 @@ public final class Stompize {
     @SuppressWarnings("unchecked")
     public static <T extends Specification> T newInstance(Class<T> type, Channel channel, Object... arguments)
             throws Exception {
-        String suffix = "Stompized";
+        return (T) sub(type, OutboundClassWriter.class).newInstance((Object[]) concat(channel, arguments));
+    }
+
+    public static <T extends Specification> ChannelInboundByteHandler inboundHandler(T object, int maxFrameLength)
+            throws Exception {
+        return (ChannelInboundByteHandler) sub(object.getClass().getSuperclass(), InboundClassWriter.class).newInstance(object, maxFrameLength);
+    }
+
+    private static Constructor<?> sub(Class<?> type, Class<? extends StompizedClassWriter> writerClass) throws Exception {
+        String suffix = writerClass.getSimpleName().replace("ClassWriter", "");
         String subClassName = type.getName() + suffix;
         ClassLoader loader = type.getClassLoader();
         Class<?> aClass;
         try {
             aClass = loader.loadClass(subClassName);
         } catch (ClassNotFoundException e) {
-            byte[] bytecode = new StompizedClassWriter(type, suffix).toByteArray();
+            byte[] bytecode = writerClass.getConstructor(Class.class, String.class)
+                                         .newInstance(type, suffix).toByteArray();
             aClass = defineClass(subClassName, bytecode, loader);
         }
-        return (T) aClass.getConstructors()[0].newInstance((Object[]) concat(channel, arguments));
-    }
-
-    public static <T extends Specification> ChannelInboundByteHandler inboundHandler(T object) {
-        return null;  // TODO
+        return aClass.getConstructors()[0];
     }
 
     private static Object[] concat(Channel channel, Object[] arguments) {

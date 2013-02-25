@@ -1,5 +1,6 @@
 package com.github.zhongl.stompize;
 
+import io.netty.buffer.ByteBuf;
 import org.junit.Test;
 
 import static com.github.zhongl.stompize.Bytes.buf;
@@ -29,10 +30,12 @@ public class ParserTest {
 
     @Test
     public void shouldParseAContentFrame() throws Exception {
-        Frame frame = new Parser(4096).parse(buf("COMMAND\nname:value\n\ncontent\u0000"));
+        ByteBuf buf = buf("COMMAND\nname:value\n\ncontent\u0000");
+        Frame frame = new Parser(4096).parse(buf);
         assertThat(frame.command(), is(buf("COMMAND")));
         assertThat(frame.header(buf("name")), is("value"));
         assertThat(frame.content(), is(new Content(buf("content"))));
+        assertThat(buf.isReadable(), is(false));
     }
 
     @Test
@@ -53,8 +56,10 @@ public class ParserTest {
 
     @Test
     public void shouldParseANonContentFrame() throws Exception {
-        Frame frame = new Parser(4096).parse(buf("COMMAND\nname:value\n\n\u0000"));
+        ByteBuf buf = buf("COMMAND\nname:value\n\n\u0000");
+        Frame frame = new Parser(4096).parse(buf);
         assertThat(frame.content(), is(Content.NONE));
+        assertThat(buf.isReadable(), is(false));
     }
 
     @Test
