@@ -1,8 +1,8 @@
 package com.github.zhongl.stompize;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import java.util.Map;
@@ -90,21 +90,8 @@ public abstract class SimpleServer implements StompV1_2 {
                  .childHandler(new ChannelInitializer<Channel>() {
                      @Override
                      protected void initChannel(Channel ch) throws Exception {
-                         final SimpleServer o = Stompize.newInstance(SimpleServer.class, ch);
-                         ChannelHandler handler = Stompize.inboundHandler(o, 4096);
-                         ChannelHandler errorHandler = new ChannelInboundByteHandlerAdapter() {
-
-                             @Override
-                             protected void inboundBufferUpdated(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
-                                 ctx.fireInboundBufferUpdated();
-                             }
-
-                             @Override
-                             public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-                                 o.error(cause.getMessage(), Content.NONE);
-                             }
-                         };
-                         ch.pipeline().addLast(handler);
+                         final SimpleServer handle = Stompize.newInstance(SimpleServer.class, ch);
+                         ch.pipeline().addLast(/*new ErrorHandler(handle),*/ Stompize.inboundHandler(handle, 4096));
                      }
                  });
         bootstrap.bind().sync();
