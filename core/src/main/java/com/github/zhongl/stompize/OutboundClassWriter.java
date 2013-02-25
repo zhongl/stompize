@@ -64,7 +64,7 @@ class OutboundClassWriter extends StompizedClassWriter {
 
     @Override
     protected void methods() {
-        new ForeachCommandOf(spec) {
+        new ForeachFrameOf(spec) {
             MethodVisitor mv;
             int componentsIndex;
 

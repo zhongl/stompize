@@ -62,7 +62,7 @@ class InboundClassWriter extends StompizedClassWriter {
         final MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, "receive", "(Lcom/github/zhongl/stompize/Frame;)V", null, null);
         mv.visitCode();
 
-        new ForeachCommandOf(spec) {
+        new ForeachFrameOf(spec) {
             Label label;
             String name;
             String descriptor;

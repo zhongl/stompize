@@ -5,8 +5,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 /** @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a> */
-public abstract class ForeachCommandOf {
-    protected ForeachCommandOf(Class<? extends Specification> spec) {
+public abstract class ForeachFrameOf {
+    protected ForeachFrameOf(Class<? extends Specification> spec) {
         methods = spec.getMethods();
     }
 

@@ -44,7 +44,7 @@ abstract class StompizedClassWriter {
     }
 
     private void staticFields() {
-        new ForeachCommandOf(spec) {
+        new ForeachFrameOf(spec) {
             Set<String> applied = new HashSet<String>();
 
             @Override
@@ -68,7 +68,7 @@ abstract class StompizedClassWriter {
         final MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
         mv.visitCode();
 
-        new ForeachCommandOf(spec) {
+        new ForeachFrameOf(spec) {
             Set<String> applied = new HashSet<String>();
 
             @Override
