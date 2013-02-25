@@ -7,7 +7,7 @@ import com.github.zhongl.stompize.Required;
 /** @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a> */
 public abstract class DemoClient implements Demo {
 
-    protected DemoClient(Object o, Object o1) {}
+    protected DemoClient(String s, boolean b, double d, float f, long l) {}
 
     @Override
     public void receipt(@Required("receipt-id") String receiptId) {

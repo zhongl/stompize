@@ -17,6 +17,7 @@ public final class Stompize {
     public static <T extends Specification> T newInstance(Class<T> type, Channel channel, Object... arguments)
             throws Exception {
         return (T) sub(type, OutboundClassWriter.class).newInstance((Object[]) concat(channel, arguments));
+//        return (T) sub(type, OutboundClassWriter.class).newInstance(channel, "", false);//, 2.0D, 1.0, 1L);
     }
 
     public static <T extends Specification> ChannelInboundByteHandler inboundHandler(T object, int maxFrameLength)

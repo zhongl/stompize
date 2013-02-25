@@ -45,12 +45,9 @@ class OutboundClassWriter extends StompizedClassWriter {
         mv.visitCode();
 
         mv.visitVarInsn(ALOAD, 0);
-        for (int i = 0; i < parameterTypes.length; i++) {
-            if (parameterTypes[i].isPrimitive())
-                throw new IllegalArgumentException("Primitive constructor parameter is unsupported in " + spec);
 
-            mv.visitVarInsn(ALOAD, i + 2);
-        }
+        loadParameters(parameterTypes, mv);
+
         mv.visitMethodInsn(INVOKESPECIAL, superClassName(), "<init>", Type.getConstructorDescriptor(constructors[0]));
 
         mv.visitVarInsn(ALOAD, 0);
@@ -58,7 +55,10 @@ class OutboundClassWriter extends StompizedClassWriter {
         mv.visitFieldInsn(PUTFIELD, subClassName, "channel", Type.getDescriptor(Channel.class));
 
         mv.visitInsn(RETURN);
-        mv.visitMaxs(parameterTypes.length + 1, parameterTypes.length + 2);
+
+        int slots = slots(parameterTypes);
+        mv.visitMaxs(slots + 1, slots + 2);
+
         mv.visitEnd();
     }
 
@@ -139,4 +139,28 @@ class OutboundClassWriter extends StompizedClassWriter {
 
     @Override
     protected String valueOf(String name) {return '\n' + name + ':';}
+
+    private static void loadParameters(Class<?>[] parameterTypes, MethodVisitor mv) {
+        for (int i = 0, j = 2; i < parameterTypes.length; i++, j++) {
+            Class<?> c = parameterTypes[i];
+            int opcode = ILOAD;
+
+            if (!c.isPrimitive()) opcode = ALOAD;
+            else if (c == double.class) opcode = DLOAD;
+            else if (c == long.class) opcode = LLOAD;
+            else if (c == float.class) opcode = FLOAD;
+
+            mv.visitVarInsn(opcode, j);
+            if (c == double.class || c == long.class) j++;
+        }
+    }
+
+    private static int slots(Class<?>[] parameterTypes) {
+        int l = 0;
+        for (Class<?> c : parameterTypes) {
+            if (c == double.class || c == long.class) l += 2;
+            else l += 1;
+        }
+        return l;
+    }
 }

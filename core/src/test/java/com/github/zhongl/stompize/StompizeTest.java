@@ -15,7 +15,7 @@ public class StompizeTest {
 
     @Test
     public void shouldWriteSendFrameToChannel() throws Exception {
-        DemoClient client = newInstance(DemoClient.class, channel, "", "");
+        DemoClient client = newInstance(DemoClient.class, channel, "", false, 2.0, 1.0F, 1L);
 
         client.send("d", new Content(buf("123")));
         verify(channel).write(buf("SEND\ndestination:d\ncontent-type:text/plain\ncontent-length:3\n\n123\u0000"));

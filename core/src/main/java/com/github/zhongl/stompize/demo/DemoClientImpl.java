@@ -25,8 +25,8 @@ public class DemoClientImpl extends DemoClient {
 
     private final Channel channel;
 
-    public DemoClientImpl(Channel channel, Object o, Object o1) {
-        super(o, o1);
+    public DemoClientImpl(Channel channel, String s, boolean b, double d, float f, long l) {
+        super(s, b, d, f, l);
         this.channel = channel;
     }
 
