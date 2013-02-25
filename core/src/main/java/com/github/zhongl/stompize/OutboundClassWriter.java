@@ -56,8 +56,7 @@ class OutboundClassWriter extends StompizedClassWriter {
 
         mv.visitInsn(RETURN);
 
-        int slots = slots(parameterTypes);
-        mv.visitMaxs(slots + 1, slots + 2);
+        autoVisitMaxs(mv);
 
         mv.visitEnd();
     }
@@ -130,7 +129,7 @@ class OutboundClassWriter extends StompizedClassWriter {
 
                 mv.visitInsn(RETURN);
 
-                mv.visitMaxs(7, componentsIndex + 1);
+                autoVisitMaxs(mv);
                 mv.visitEnd();
 
             }
@@ -153,14 +152,5 @@ class OutboundClassWriter extends StompizedClassWriter {
             mv.visitVarInsn(opcode, j);
             if (c == double.class || c == long.class) j++;
         }
-    }
-
-    private static int slots(Class<?>[] parameterTypes) {
-        int l = 0;
-        for (Class<?> c : parameterTypes) {
-            if (c == double.class || c == long.class) l += 2;
-            else l += 1;
-        }
-        return l;
     }
 }

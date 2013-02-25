@@ -22,7 +22,7 @@ abstract class StompizedClassWriter {
         this.spec = spec;
         className = Type.getInternalName(spec);
         subClassName = className + suffix;
-        cw = new ClassWriter(0);
+        cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
     }
 
     public final byte[] toByteArray() {
@@ -95,9 +95,11 @@ abstract class StompizedClassWriter {
         }.apply();
 
         mv.visitInsn(RETURN);
-        mv.visitMaxs(1, 0);
+        autoVisitMaxs(mv);
         mv.visitEnd();
     }
+
+    protected void autoVisitMaxs(MethodVisitor mv) {mv.visitMaxs(0, 0);}
 
     protected abstract String valueOf(String name);
 

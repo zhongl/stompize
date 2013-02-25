@@ -1,7 +1,5 @@
 package com.github.zhongl.stompize;
 
-import static java.lang.Math.max;
-
 import com.github.zhongl.stompize.demo.DemoHandler;
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -50,7 +48,9 @@ class InboundClassWriter extends StompizedClassWriter {
         mv.visitFieldInsn(PUTFIELD, subClassName, SPEC_NAME, specDescriptor);
 
         mv.visitInsn(RETURN);
-        mv.visitMaxs(2, 3);
+
+        autoVisitMaxs(mv);
+
         mv.visitEnd();
 
     }
@@ -112,7 +112,8 @@ class InboundClassWriter extends StompizedClassWriter {
 
         mv.visitInsn(RETURN);
 
-        mv.visitMaxs(max(2, stackSize.get() + 1), 2);
+        autoVisitMaxs(mv);
+
         mv.visitEnd();
     }
 
