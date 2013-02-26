@@ -10,7 +10,6 @@
     <version>0.1</version>
     <modules>
         <module>core</module>
-        <module>client</module>
     </modules>
 
     <dependencies>
