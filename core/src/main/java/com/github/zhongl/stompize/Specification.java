@@ -1,4 +1,7 @@
 package com.github.zhongl.stompize;
 
 /** @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a> */
-public interface Specification {}
+public abstract class Specification {
+    /** @return {@link FrameVisitor} used to output method invocation as a frame. */
+    protected abstract FrameVisitor output();
+}

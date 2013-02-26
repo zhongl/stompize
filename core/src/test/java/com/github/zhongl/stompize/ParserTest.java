@@ -24,7 +24,7 @@ public class ParserTest {
             fail();
         } catch (Parser.ParseException e) {
             assertThat(e.getMessage(), is("Frame should not longer than: 11."));
-            assertThat(e.content(), is("LONG_COMMAND"));
+            assertThat(e.content(), is(buf("LONG_COMMAND")));
         }
     }
 
@@ -85,7 +85,7 @@ public class ParserTest {
             fail();
         } catch (Parser.ParseException e) {
             assertThat(e.getMessage(), is("Missing COLON."));
-            assertThat(e.content(), is("namevalue"));
+            assertThat(e.content(), is(buf("namevalue")));
         }
     }
 
@@ -96,7 +96,7 @@ public class ParserTest {
             fail();
         } catch (Parser.ParseException e) {
             assertThat(e.getMessage(), is("Empty header name."));
-            assertThat(e.content(), is(":value"));
+            assertThat(e.content(), is(buf(":value")));
         }
     }
 
@@ -107,7 +107,7 @@ public class ParserTest {
             fail();
         } catch (Parser.ParseException e) {
             assertThat(e.getMessage(), is("Non-NULL end of frame."));
-            assertThat(e.content(), is("COMMAND\nname:value\ncontent-length:7\n\ncontent!"));
+            assertThat(e.content(), is(buf("COMMAND\nname:value\ncontent-length:7\n\ncontent!")));
         }
     }
 
