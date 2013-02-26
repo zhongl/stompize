@@ -219,7 +219,7 @@ class Parser {
             this.buf = buf;
         }
 
-        String content() { return buf.toString(UTF8); }
+        ByteBuf content() { return buf; }
 
         final ByteBuf buf;
 
