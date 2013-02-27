@@ -1,60 +1,37 @@
 package com.github.zhongl.stompize;
 
+import com.google.common.base.Function;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
 
-import static org.mockito.Mockito.*;
+import static com.github.zhongl.stompize.Stomp.Destination;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /** @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a> */
 public class StompizeTest {
     @Test
     public void shouldOutputFrameWithContent() throws Exception {
-        FrameOutput output = mock(FrameOutput.class);
-        Object[] arguments = {output, false, Byte.MIN_VALUE, 'a', Short.MIN_VALUE, 1, 2.0f, 1L, 2.0};
-        StompClient stompClient = Stompize.newInstance(StompClient.class, arguments);
+        Function<String, Void> output = mock(Function.class);
+        Stomp client = Stompize.create(Stomp.class, StompClient.class, output);
 
-        stompClient.send("d", null, "c");
+        Destination d = new Destination("d");
+        client.send(d, new Stomp.Text("content"));
 
-        verify(output).command("SEND");
-        verify(output).header("destination", "d", true);
-        verify(output).header("receipt", null, false);
-        verify(output).content("c");
+        verify(output).apply("[SEND, [[\ndestination:d], \n\ncontent\u0000]]");
     }
 
     @Test
-    public void shouldOutputFrameWithoutContent() throws Exception {
-        FrameOutput output = mock(FrameOutput.class);
-        StompServer stompServer = Stompize.newInstance(StompServer.class, output);
+    public void shouldCallbackCommand() throws Exception {
+        Function<String, Void> output = mock(Function.class);
+        Stompizeble stompizeble = (Stompizeble) Stompize.create(Stomp.class, StompClient.class, output);
 
-        stompServer.receipt("1");
+        Map<String, String> headers = new HashMap<String, String>();
+        headers.put("message", "IMOP");
+        stompizeble.apply("ERROR", headers, "OMG");
 
-        verify(output).command("RECEIPT");
-        verify(output).header("receipt-id", "1", false);
+        verify(output).apply("[ERROR, [\n\nOMG\u0000, [\nmessage:IMOP]]]");
     }
 
-    @Test
-    public void shouldCallbackFrameWithoutContent() throws Exception {
-        StompClient stompClient = mock(StompClient.class);
-        Frame frame = mock(Frame.class);
-
-        doReturn(true).when(frame).isCommand("RECEIPT");
-        doReturn("1").when(frame).header("receipt-id");
-
-        Stompize.callback(stompClient).apply(frame);
-
-        verify(stompClient).receipt("1");
-    }
-
-    @Test
-    public void shouldCallbackFrameWithContent() throws Exception {
-        StompServer stompClient = mock(StompServer.class);
-        Frame frame = mock(Frame.class);
-
-        doReturn(true).when(frame).isCommand("SEND");
-        doReturn("d").when(frame).header("destination");
-        doReturn("c").when(frame).content();
-
-        Stompize.callback(stompClient).apply(frame);
-
-        verify(stompClient).send("d", null, "c");
-    }
 }

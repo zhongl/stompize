@@ -5,28 +5,30 @@ import io.netty.buffer.Unpooled;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.github.zhongl.stompize.Bytes.UTF8;
+
 /** @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a> */
 class Parser {
 
-    Parser(int maxFrameLength) {
+    Parser(int maxFrameLength, Stompizeble stompizeble) {
         this.maxFrameLength = maxFrameLength;
+        this.stompizeble = stompizeble;
         last = start();
     }
 
-    public Frame parse(ByteBuf in) {
+    public boolean parse(ByteBuf in) {
         for (; ; ) {
             State<?> s = last.read(in);
 
             if (s instanceof Broken) {
                 Broken b = (Broken) s;
                 last = b.get();
-                return null;
+                return false;
             }
 
             if (s instanceof Done) {
-                Done d = (Done) s;
                 last = start();
-                return d.get();
+                return true;
             }
 
             if (s instanceof Next) {
@@ -38,7 +40,8 @@ class Parser {
 
     private Activity start() { return new ReadCommand(0); }
 
-    private final int maxFrameLength;
+    private final int         maxFrameLength;
+    private final Stompizeble stompizeble;
 
     private Activity last;
 
@@ -75,31 +78,26 @@ class Parser {
     }
 
     private static class Headers {
-        final Map<ByteBuf, ByteBuf> map = new HashMap<ByteBuf, ByteBuf>();
+        final Map<String, String> map = new HashMap<String, String>();
 
         public Headers append(ByteBuf header) {
             int l = header.bytesBefore(Bytes.COLON);
-            if (l == -1) throw new ParseException("Missing COLON.", header);
+            if (l == -1) throw new StompizeException("Missing COLON.", header.toString(UTF8));
 
-            ByteBuf name = header.readSlice(l);
-            if (!name.isReadable()) throw new ParseException("Empty header name.", header);
+            String name = header.readSlice(l).toString(UTF8);
+            if (name.isEmpty()) throw new StompizeException("Empty header name.", header.toString(UTF8));
 
             header.skipBytes(1); // skip COLON
 
-            if (!map.containsKey(name)) map.put(name, header);
+            if (!map.containsKey(name)) map.put(name, header.toString(UTF8));
 
             return this;
         }
 
         public int contentLength() {
-            ByteBuf value = map.get(Bytes.buf("content-length"));
+            String value = map.get("content-length");
             if (value == null) return -1;
-            return Integer.valueOf(value.toString(Bytes.UTF8));
-        }
-
-        public String contentType() {
-            ByteBuf value = map.get(Bytes.buf("content-type"));
-            return value == null ? null : value.toString(Bytes.UTF8);
+            return Integer.valueOf(value);
         }
     }
 
@@ -114,8 +112,9 @@ class Parser {
         @Override
         public State<?> read(ByteBuf in) {
             int l = headers.contentLength();
-            ByteBuf content = l == -1 ? readContent(in) : readFixedContent(l, in);
-            return new Done(new Frame(command, headers.map, new Content(headers.contentType(), content)));
+            final ByteBuf content = l == -1 ? readContent(in) : readFixedContent(l, in);
+            stompizeble.apply(command.toString(UTF8), headers.map, content);
+            return new Done();
         }
 
         private ByteBuf readContent(ByteBuf in) {
@@ -134,7 +133,7 @@ class Parser {
             int start = in.readerIndex() + offset;
             ByteBuf content = in.slice(start, length);
             if (in.getByte(start + length) != Bytes.NULL)
-                throw new ParseException("Non-NULL end of frame.", in.readSlice(offset + length + 1));
+                throw new StompizeException("Non-NULL end of frame.", in.readSlice(offset + length + 1).toString(UTF8));
 
             in.skipBytes(offset + length + 1);
             return content;
@@ -157,7 +156,7 @@ class Parser {
             int max = in.writerIndex();
 
             for (int i = start; ; i++) {
-                if (i > maxFrameLength) throw new ParseException(tooLongFrame(), in.readSlice(i));
+                if (i > maxFrameLength) throw new StompizeException(tooLongFrame(), in.readSlice(i).toString(UTF8));
                 if (i == max) return new Broken(this);
                 if (in.getByte(i) == b) return next(in, i - start);
             }
@@ -202,26 +201,13 @@ class Parser {
         protected Next(Activity activity) { super(activity); }
     }
 
-    private static class Done extends State<Frame> {
-        protected Done(Frame frame) { super(frame); }
+    private static class Done extends State<Object> {
+        protected Done() { super(null); }
+
     }
 
     private interface Activity {
         State<?> read(ByteBuf in);
-    }
-
-    static class ParseException extends RuntimeException {
-
-        ParseException(String message, ByteBuf buf) {
-            super(message);
-            this.buf = buf;
-        }
-
-        ByteBuf content() { return buf; }
-
-        final ByteBuf buf;
-
-        private static final long serialVersionUID = 9000540009058302926L;
     }
 
 }

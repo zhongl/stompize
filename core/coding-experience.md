@@ -5,7 +5,6 @@
     - 是否易于测试
     - 是否易于理解
 
-
 # ASM
 
 - 参考样例代码的`ASMified Code`让`ASM`的编码更轻松
@@ -15,6 +14,15 @@
     - MethodVisitor.visitLineNumber
     - MethodVisitor.visitLocalVariable
 - 字节码中关于类和方法的名称及描述, 可以通过`org.objectweb.asm.Type`的静态工具方法方便的转换得到
+- 分别使用ASMified和TraceClassVisitor输出结果进行diff来诊断字节码生成上的bug.
+- 数组对象的Type转对应的Class, 有点绕:
+
+    if (t.getSort() == Type.ARRAY) {
+        Type elementType = t.getElementType();
+        Class<?> c = aClass.getClassLoader().loadClass(elementType.getClassName());
+        return Array.newInstance(c, 0).getClass();
+    }
+
 
 # Codec
 

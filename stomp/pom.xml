@@ -19,7 +19,12 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport</artifactId>
-            <version>4.0.0.Beta1</version>
+            <version>4.0.0.Beta2</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.0.9</version>
         </dependency>
     </dependencies>
 

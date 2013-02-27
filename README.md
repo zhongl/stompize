@@ -2,7 +2,7 @@
 
 Stompize is a java [STOMP][1] framework, it could help you build or enhance your [STOMP][1] application more easier and readable.
 
-For example, suppose your [STOMP][1] specification has defined two command: [`SEND`]() and `RECEIPT`, you can write java code like below without any document:
+For example, suppose your [STOMP][1] specification has defined two command: `SEND` and `RECEIPT`, you can write java code like below without any document:
 
 ```java
 public interface Stomp {
@@ -16,7 +16,7 @@ public interface Stomp {
 }
 ```
 
-Then, you can code the StompClient:
+Then, you can code the `StompClient`:
 
 ```java
 public abstract class StompClient extends Specification implements Stomp {
