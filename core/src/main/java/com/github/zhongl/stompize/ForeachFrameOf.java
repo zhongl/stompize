@@ -30,11 +30,11 @@ abstract class ForeachFrameOf {
     private boolean foreach(Annotation[] parameterAnnotation, int i, int last, Class<?> type, Method method) {
         for (Annotation annotation : parameterAnnotation) {
             if (annotation instanceof Required) {
-                required(((Required) annotation).value(), i);
+                header(((Required) annotation).value(), i, true);
                 return false;
             }
             if (annotation instanceof Optional) {
-                optional(((Optional) annotation).value(), i);
+                header(((Optional) annotation).value(), i, false);
                 return false;
             }
         }
@@ -46,13 +46,11 @@ abstract class ForeachFrameOf {
         return true;
     }
 
+    protected abstract void header(String name, int index, boolean required);
+
     protected abstract boolean exclude(Method method);
 
     protected abstract void command(String name, Method method);
-
-    protected abstract void required(String name, int index);
-
-    protected abstract void optional(String name, int index);
 
     protected abstract void content(int index);
 

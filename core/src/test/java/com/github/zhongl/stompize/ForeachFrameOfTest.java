@@ -15,6 +15,17 @@ public class ForeachFrameOfTest {
         new ForeachFrameOf(CommandWithContent.class) {
 
             @Override
+            protected void header(String name, int index, boolean required) {
+                if ("required".equals(name)) {
+                    assertThat(required, is(true));
+                    assertThat(index, is(1));
+                } else {
+                    assertThat(required, is(false));
+                    assertThat(index, is(2));
+                }
+            }
+
+            @Override
             protected boolean exclude(Method method) {
                 return !Modifier.isAbstract(method.getModifiers());
             }
@@ -22,18 +33,6 @@ public class ForeachFrameOfTest {
             @Override
             protected void command(String name, Method method) {
                 assertThat(name, is("command"));
-            }
-
-            @Override
-            protected void required(String name, int index) {
-                assertThat(name, is("required"));
-                assertThat(index, is(1));
-            }
-
-            @Override
-            protected void optional(String name, int index) {
-                assertThat(name, is("optional"));
-                assertThat(index, is(2));
             }
 
             @Override
@@ -56,10 +55,7 @@ public class ForeachFrameOfTest {
             protected void command(String name, Method method) { }
 
             @Override
-            protected void required(String name, int index) { }
-
-            @Override
-            protected void optional(String name, int index) { }
+            protected void header(String name, int index, boolean required) { }
 
             @Override
             protected void content(int index) {
@@ -81,10 +77,7 @@ public class ForeachFrameOfTest {
             protected void command(String name, Method method) { }
 
             @Override
-            protected void required(String name, int index) { }
-
-            @Override
-            protected void optional(String name, int index) { }
+            protected void header(String name, int index, boolean required) { }
 
             @Override
             protected void content(int index) { }
@@ -104,10 +97,7 @@ public class ForeachFrameOfTest {
             protected void command(String name, Method method) { }
 
             @Override
-            protected void required(String name, int index) { }
-
-            @Override
-            protected void optional(String name, int index) { }
+            protected void header(String name, int index, boolean required) { }
 
             @Override
             protected void content(int index) { }

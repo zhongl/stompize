@@ -2,7 +2,6 @@ package com.github.zhongl.stompize;
 
 import org.junit.Test;
 
-import static com.github.zhongl.stompize.Specification.bytes;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -16,9 +15,9 @@ public class StompizeTest {
 
         aSpec.send("d", null, "c");
 
-        verify(visitor).command(bytes("SEND"));
-        verify(visitor).required(bytes("destination"), "d");
-        verify(visitor).optional(bytes("receipt"), null);
+        verify(visitor).command("SEND");
+        verify(visitor).header("destination", "d", true);
+        verify(visitor).header("receipt", null, false);
         verify(visitor).content("c");
     }
 

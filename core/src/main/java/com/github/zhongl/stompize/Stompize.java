@@ -22,7 +22,7 @@ public final class Stompize {
         return (T) aClass.getConstructors()[0].newInstance((Object[]) arguments);
     }
 
-    private static byte[] generateSub(Class<?> aSpecClass) throws IOException {
+    private static byte[] generateSub(Class<? extends Specification> aSpecClass) throws IOException {
         String name = Type.getInternalName(aSpecClass) + ".class";
         ProxyVisitor pv = new ProxyVisitor(aSpecClass);
         ClassReader cr = new ClassReader(aSpecClass.getClassLoader().getResourceAsStream(name));

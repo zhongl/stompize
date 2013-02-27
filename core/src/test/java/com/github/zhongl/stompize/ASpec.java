@@ -1,7 +1,7 @@
 package com.github.zhongl.stompize;
 
 /** @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a> */
-public abstract class ASpec extends Specification {
+public abstract class ASpec extends Specification implements Stomp {
 
     private final FrameVisitor visitor;
 
@@ -9,12 +9,7 @@ public abstract class ASpec extends Specification {
         this.visitor = visitor;
     }
 
-    public abstract void send(
-            @Required("destination") String destination,
-            @Optional("receipt") String receipt,
-            Object content
-    );
-
+    @Override
     public void receipt(@Optional("receipt-id") String id) {
         System.out.println("received receipt: " + id);
     }
