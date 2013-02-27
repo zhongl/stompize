@@ -5,8 +5,6 @@ import io.netty.buffer.Unpooled;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.github.zhongl.stompize.Specification.*;
-
 /** @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a> */
 class Parser {
 
@@ -80,7 +78,7 @@ class Parser {
         final Map<ByteBuf, ByteBuf> map = new HashMap<ByteBuf, ByteBuf>();
 
         public Headers append(ByteBuf header) {
-            int l = header.bytesBefore(COLON);
+            int l = header.bytesBefore(Bytes.COLON);
             if (l == -1) throw new ParseException("Missing COLON.", header);
 
             ByteBuf name = header.readSlice(l);
@@ -96,12 +94,12 @@ class Parser {
         public int contentLength() {
             ByteBuf value = map.get(Bytes.buf("content-length"));
             if (value == null) return -1;
-            return Integer.valueOf(value.toString(UTF8));
+            return Integer.valueOf(value.toString(Bytes.UTF8));
         }
 
         public String contentType() {
             ByteBuf value = map.get(Bytes.buf("content-type"));
-            return value == null ? null : value.toString(UTF8);
+            return value == null ? null : value.toString(Bytes.UTF8);
         }
     }
 
@@ -121,7 +119,7 @@ class Parser {
         }
 
         private ByteBuf readContent(ByteBuf in) {
-            State<?> ref = new ReadUtil(NULL, offset) {
+            State<?> ref = new ReadUtil(Bytes.NULL, offset) {
                 @Override
                 protected State<?> next(ByteBuf in, int length) {
                     ByteBuf content = in.slice(in.readerIndex() + super.offset, length);
@@ -135,7 +133,7 @@ class Parser {
         private ByteBuf readFixedContent(int length, ByteBuf in) {
             int start = in.readerIndex() + offset;
             ByteBuf content = in.slice(start, length);
-            if (in.getByte(start + length) != NULL)
+            if (in.getByte(start + length) != Bytes.NULL)
                 throw new ParseException("Non-NULL end of frame.", in.readSlice(offset + length + 1));
 
             in.skipBytes(offset + length + 1);
@@ -174,14 +172,14 @@ class Parser {
     }
 
     private abstract class ReadLine extends ReadUtil {
-        ReadLine(int offset) { super(LF, offset); }
+        ReadLine(int offset) { super(Bytes.LF, offset); }
 
         @Override
         protected State<?> next(ByteBuf in, int length) {
             int start = in.readerIndex() + offset;
             int readerIndex = offset + length + 1;
             if (length == 0) return state(Unpooled.EMPTY_BUFFER, readerIndex);
-            if (in.getByte(start + length - 1) == CR) length -= 1;
+            if (in.getByte(start + length - 1) == Bytes.CR) length -= 1;
             return state(in.slice(start, length), readerIndex);
         }
 

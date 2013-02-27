@@ -1,7 +1,7 @@
 package com.github.zhongl.stompize;
 
 /** @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a> */
-public interface FrameVisitor {
+public interface FrameOutput {
     /** First call. */
     void command(String command);
 

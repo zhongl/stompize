@@ -1,5 +1,6 @@
 package com.github.zhongl.stompize;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import org.objectweb.asm.*;
@@ -7,13 +8,13 @@ import org.objectweb.asm.*;
 import static org.objectweb.asm.Opcodes.*;
 
 /** @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a> */
-class ProxyVisitor extends ClassVisitor {
+class ProxyClassWriter extends ClassVisitor {
 
     public static <T extends Specification> String proxyClassName(Class<T> aSpecClass) {
         return aSpecClass.getName() + SUFFIX;
     }
 
-    public ProxyVisitor(Class<? extends Specification> aSpecClass) {
+    public ProxyClassWriter(Class<? extends Specification> aSpecClass) {
         super(ASM4, new ClassWriter(ClassWriter.COMPUTE_MAXS));
         this.aSpecClass = aSpecClass;
     }
@@ -41,16 +42,16 @@ class ProxyVisitor extends ClassVisitor {
             @Override
             protected void command(String name, Method method) {
                 outputIndex = method.getParameterTypes().length + 1;
-                mv = ProxyVisitor.super.visitMethod(ACC_PUBLIC, name, Type.getMethodDescriptor(method), null, null);
+                mv = ProxyClassWriter.super.visitMethod(ACC_PUBLIC, name, Type.getMethodDescriptor(method), null, null);
                 mv.visitCode();
 
                 mv.visitVarInsn(ALOAD, 0);
-                mv.visitMethodInsn(INVOKEVIRTUAL, self, "output", "()Lcom/github/zhongl/stompize/FrameVisitor;");
+                mv.visitMethodInsn(INVOKEVIRTUAL, self, "output", "()Lcom/github/zhongl/stompize/FrameOutput;");
                 mv.visitVarInsn(ASTORE, outputIndex);
 
                 mv.visitVarInsn(ALOAD, outputIndex);
                 mv.visitLdcInsn(name.toUpperCase());
-                mv.visitMethodInsn(INVOKEINTERFACE, "com/github/zhongl/stompize/FrameVisitor", "command", "(Ljava/lang/String;)V");
+                mv.visitMethodInsn(INVOKEINTERFACE, "com/github/zhongl/stompize/FrameOutput", "command", "(Ljava/lang/String;)V");
             }
 
             @Override
@@ -59,7 +60,7 @@ class ProxyVisitor extends ClassVisitor {
                 mv.visitLdcInsn(name);
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitInsn(required ? ICONST_1 : ICONST_0);
-                mv.visitMethodInsn(INVOKEINTERFACE, "com/github/zhongl/stompize/FrameVisitor", "header", "(Ljava/lang/String;Ljava/lang/Object;Z)V");
+                mv.visitMethodInsn(INVOKEINTERFACE, "com/github/zhongl/stompize/FrameOutput", "header", "(Ljava/lang/String;Ljava/lang/Object;Z)V");
             }
 
             @Override
@@ -70,10 +71,10 @@ class ProxyVisitor extends ClassVisitor {
                 } else {
                     mv.visitVarInsn(ALOAD, index);
                 }
-                mv.visitMethodInsn(INVOKEINTERFACE, "com/github/zhongl/stompize/FrameVisitor", "content", "(Ljava/lang/Object;)V");
+                mv.visitMethodInsn(INVOKEINTERFACE, "com/github/zhongl/stompize/FrameOutput", "content", "(Ljava/lang/Object;)V");
 
                 mv.visitInsn(RETURN);
-                mv.visitMaxs(AUTO_STACK, AUTO_LOCALS);
+                mv.visitMaxs(0, 0); // auto compute stack and locals
                 mv.visitEnd();
             }
 
@@ -126,17 +127,18 @@ class ProxyVisitor extends ClassVisitor {
         mv.visitMethodInsn(INVOKESPECIAL, parent, name, desc);
         mv.visitInsn(RETURN);
 
-        mv.visitMaxs(AUTO_STACK, AUTO_LOCALS);
+        mv.visitMaxs(0, 0); // auto compute stack and locals
         mv.visitEnd();
     }
 
-    public byte[] toByteArray() {
+    public byte[] toByteArray() throws IOException {
+        String name = Type.getInternalName(aSpecClass) + ".class";
+        ClassReader cr = new ClassReader(aSpecClass.getClassLoader().getResourceAsStream(name));
+        cr.accept(this, ClassReader.SKIP_DEBUG);
         return ((ClassWriter) cv).toByteArray();
     }
 
-    private static final int    AUTO_STACK  = 0;
-    private static final int    AUTO_LOCALS = 0;
-    private static final String SUFFIX      = "Stompized";
+    private static final String SUFFIX = "Stompized";
 
     private final Class<? extends Specification> aSpecClass;
 

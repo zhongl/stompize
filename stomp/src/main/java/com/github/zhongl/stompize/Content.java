@@ -5,7 +5,6 @@ import io.netty.buffer.Unpooled;
 import java.util.List;
 
 import static com.github.zhongl.stompize.Bytes.buf;
-import static com.github.zhongl.stompize.Specification.*;
 import static io.netty.buffer.Unpooled.EMPTY_BUFFER;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
 
@@ -15,9 +14,9 @@ public class Content {
     private static final ByteBuf CONTENT_LENGTH = buf("\ncontent-length:");
     private static final String  TEXT_PLAIN     = "text/plain";
 
-    private static final ByteBuf LF_LF_BUF      = wrappedBuffer(new byte[]{LF, LF});
-    private static final ByteBuf NULL_BUF       = wrappedBuffer(new byte[]{NULL});
-    private static final ByteBuf LF_LF_NULL_BUF = wrappedBuffer(new byte[]{LF, LF, NULL});
+    private static final ByteBuf LF_LF_BUF      = wrappedBuffer(new byte[]{Bytes.LF, Bytes.LF});
+    private static final ByteBuf NULL_BUF       = wrappedBuffer(new byte[]{Bytes.NULL});
+    private static final ByteBuf LF_LF_NULL_BUF = wrappedBuffer(new byte[]{Bytes.LF, Bytes.LF, Bytes.NULL});
 
     public static final Content NONE = new Content(EMPTY_BUFFER);
 
@@ -45,7 +44,7 @@ public class Content {
             components.add(CONTENT_TYPE);
             components.add(Bytes.buf(type));
             components.add(CONTENT_LENGTH);
-            components.add(Unpooled.wrappedBuffer(String.valueOf(length).getBytes(UTF8)));
+            components.add(Unpooled.wrappedBuffer(String.valueOf(length).getBytes(Bytes.UTF8)));
             components.add(LF_LF_BUF);
             components.add(value());
             components.add(NULL_BUF);

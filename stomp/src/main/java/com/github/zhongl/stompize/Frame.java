@@ -3,7 +3,7 @@ package com.github.zhongl.stompize;
 import io.netty.buffer.ByteBuf;
 import java.util.Map;
 
-import static com.github.zhongl.stompize.Specification.UTF8;
+import static com.github.zhongl.stompize.Bytes.UTF8;
 
 /** @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a> */
 public final class Frame {
