@@ -9,13 +9,19 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>stompize-core</artifactId>
+    <artifactId>stompize-stomp</artifactId>
     <dependencies>
         <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm</artifactId>
-            <version>4.1</version>
+            <groupId>com.github.zhongl</groupId>
+            <artifactId>stompize-core</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+            <version>4.0.0.Beta1</version>
         </dependency>
     </dependencies>
+
 
 </project>

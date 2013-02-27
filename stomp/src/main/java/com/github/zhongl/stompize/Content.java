@@ -1,9 +1,11 @@
 package com.github.zhongl.stompize;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import java.util.List;
 
-import static com.github.zhongl.stompize.Bytes.*;
+import static com.github.zhongl.stompize.Bytes.buf;
+import static com.github.zhongl.stompize.Specification.*;
 import static io.netty.buffer.Unpooled.EMPTY_BUFFER;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
 
@@ -41,9 +43,9 @@ public class Content {
             components.add(LF_LF_NULL_BUF);
         } else {
             components.add(CONTENT_TYPE);
-            components.add(buf(type));
+            components.add(Bytes.buf(type));
             components.add(CONTENT_LENGTH);
-            components.add(wrappedBuffer(String.valueOf(length).getBytes(UTF8)));
+            components.add(Unpooled.wrappedBuffer(String.valueOf(length).getBytes(UTF8)));
             components.add(LF_LF_BUF);
             components.add(value());
             components.add(NULL_BUF);

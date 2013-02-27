@@ -5,7 +5,7 @@ import io.netty.buffer.Unpooled;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.github.zhongl.stompize.Bytes.*;
+import static com.github.zhongl.stompize.Specification.*;
 
 /** @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a> */
 class Parser {
@@ -94,13 +94,13 @@ class Parser {
         }
 
         public int contentLength() {
-            ByteBuf value = map.get(buf("content-length"));
+            ByteBuf value = map.get(Bytes.buf("content-length"));
             if (value == null) return -1;
             return Integer.valueOf(value.toString(UTF8));
         }
 
         public String contentType() {
-            ByteBuf value = map.get(buf("content-type"));
+            ByteBuf value = map.get(Bytes.buf("content-type"));
             return value == null ? null : value.toString(UTF8);
         }
     }

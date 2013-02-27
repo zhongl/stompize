@@ -9,14 +9,12 @@ public abstract class ASpec extends Specification {
         this.visitor = visitor;
     }
 
-    @Client
     public abstract void send(
             @Required("destination") String destination,
             @Optional("receipt") String receipt,
             Object content
     );
 
-    @Server
     public void receipt(@Optional("receipt-id") String id) {
         System.out.println("received receipt: " + id);
     }
