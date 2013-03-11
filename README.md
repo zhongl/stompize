@@ -31,7 +31,7 @@ public abstract class Client extends Stompizeble implements Stomp {
 
     private final Function channel; // channel to communicate with server.
 
-    protected StompClient(Function channel) { this.channel = channel; }
+    protected Client(Function channel) { this.channel = channel; }
 
     @Override
     public void receipt(@Optional("receipt-id") String id) {
@@ -65,7 +65,7 @@ A simple unit test could let you figure it out:
     @Test
     public void shouldCallbackCommand() throws Exception {
         Function<String, Void> output = mock(Function.class);
-        Stompizeble stompizeble = (Stompizeble) Stompize.create(Stomp.class, StompClient.class, output);
+        Stompizeble stompizeble = (Stompizeble) Stompize.create(Stomp.class, Client.class, output);
 
         stompizeble.apply("RECEIPT", Collections.singletonMap("receipt-id","1"), null);
 
