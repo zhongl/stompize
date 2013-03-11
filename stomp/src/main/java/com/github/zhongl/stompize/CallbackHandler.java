@@ -16,5 +16,11 @@ public class CallbackHandler extends ChannelInboundByteHandlerAdapter {
         while (parser.parse(in)) { }
     }
 
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        super.exceptionCaught(ctx, cause);
+        ctx.channel().close();
+    }
+
     private final Parser parser;
 }

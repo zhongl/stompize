@@ -91,7 +91,7 @@ public interface StompV1_2 extends Specification {
     }
 
     class Heartbeat extends Header {
-        public Heartbeat(int x, int y) {
+        public Heartbeat(long x, long y) {
             super(Joiner.on(',').join(x, y));
             this.x = x;
             this.y = y;
@@ -100,12 +100,12 @@ public interface StompV1_2 extends Specification {
         public Heartbeat(String value) {
             super(value);
             Iterator<String> itr = Splitter.on(',').limit(2).split(value).iterator();
-            x = Integer.valueOf(itr.next());
-            y = Integer.valueOf(itr.next());
+            x = Long.valueOf(itr.next());
+            y = Long.valueOf(itr.next());
         }
 
-        public final int x;
-        public final int y;
+        public final long x;
+        public final long y;
     }
 
     class Version extends Header {

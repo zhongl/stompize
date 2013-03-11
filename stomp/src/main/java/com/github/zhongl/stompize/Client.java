@@ -52,15 +52,24 @@ public abstract class Client extends Stompizeble implements StompV1_2 {
 
         StompizeException e = new StompizeException(message == null ? "NO_MESSAGE" : message.value(), content.value());
 
-        if (!connected.isDone()) {
-            connected.setFailure(e);
-            return;
+        try {
+            if (!connected.isDone()) {
+                connected.setFailure(e);
+                return;
+            }
+
+            if (receiptId == null) throw e;
+
+            ChannelPromise promise = promises.remove(receiptId.value());
+            if (promise != null) promise.setFailure(e);
+        } finally {
+            close();
         }
+    }
 
-        if (receiptId == null) throw e;
-
-        ChannelPromise promise = promises.remove(receiptId.value());
-        if (promise != null) promise.setFailure(e);
+    @Override
+    public void close() {
+        channel.close().syncUninterruptibly();
     }
 
     @Override

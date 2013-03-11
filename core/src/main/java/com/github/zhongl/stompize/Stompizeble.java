@@ -9,11 +9,7 @@ import static com.github.zhongl.stompize.Stompize.headerName;
 /** @author <a href="mailto:zhong.lunfu@gmail.com">zhongl<a> */
 public abstract class Stompizeble {
 
-    /**
-     * This method would be called be stompized class, after you have called {@link Command} method.
-     * It should to be override to output a Frame.
-     */
-    protected abstract void out(String command, Iterable<Header> headers, Content<?> content);
+    public void close() {}
 
     /**
      * This method should be called when a Frame received.
@@ -21,7 +17,13 @@ public abstract class Stompizeble {
      */
     public abstract void apply(String command, Map<String, String> headers, Object content);
 
-    protected <T> T checkNotNull(T value, String name) {
+    /**
+     * This method would be called be stompized class, after you have called {@link Command} method.
+     * It should to be override to output a Frame.
+     */
+    protected abstract void out(String command, Iterable<Header> headers, Content<?> content);
+
+    protected final <T> T checkNotNull(T value, String name) {
         if (value == null) throw new StompizeException("Missing required header: " + headerName(name));
         return value;
     }
@@ -40,5 +42,6 @@ public abstract class Stompizeble {
         }
         return list.toArray(new Header[list.size()]);
     }
+
 
 }
